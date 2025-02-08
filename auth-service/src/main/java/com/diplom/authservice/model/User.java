@@ -1,45 +1,41 @@
 package com.diplom.authservice.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column
+    private String name;
+
+    @Column
+    private String nickname;
+
     @Column(unique = true, nullable = false)
-    private String username;
+    private String login;
 
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
+    @Column
     private String role;
 
-    public String getUsername() {
-        return username;
-    }
+    @Column
+    private String city;
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+    @Temporal(TemporalType.DATE)
+    @Column(name = "birthdate")
+    private java.util.Date birthdate;
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
+    @Column(name = "photo_path")
+    private String photoPath;
 }
-
