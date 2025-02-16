@@ -1,5 +1,7 @@
 package com.diplom.authservice.controller;
 
+import com.diplom.authservice.Exception.InvalidPasswordException;
+import com.diplom.authservice.Exception.UserNotFoundException;
 import com.diplom.authservice.config.JwtTokenProvider;
 import com.diplom.authservice.model.User;
 import com.diplom.authservice.model.UserProfileDTO;
@@ -35,34 +37,77 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> request) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> request) {
         String login = request.get("login");
         String password = request.get("password");
 
-        User user = userService.findByLogin(login)
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
-
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("Неверный пароль");
+        if (login == null || login.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Логин не может быть пустым"));
+        }
+        if (password == null || password.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Пароль не может быть пустым"));
         }
 
-        String token = jwtTokenProvider.generateToken(login);
+        if (password.length() < 8 || password.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Пароль не может быть меньше 8 символов"));
+        }
 
-        return ResponseEntity.ok(Map.of("token", token));
+        try {
+            User user = userService.findByLogin(login)
+                    .orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
+
+            if (!passwordEncoder.matches(password, user.getPassword())) {
+                throw new InvalidPasswordException("Неверный пароль");
+            }
+
+            String token = jwtTokenProvider.generateToken(login);
+            return ResponseEntity.ok(Map.of("token", token));
+
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", e.getMessage()));
+        } catch (InvalidPasswordException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Произошла внутренняя ошибка сервера"));
+        }
     }
 
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody Map<String, String> request) {
+    public ResponseEntity<?> register(@RequestBody Map<String, String> request) {
         String login = request.get("login");
         String password = request.get("password");
-        if (userService.findByLogin(login).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Пользователь с таким логином уже существует");
-        }
-        userService.register(login, password);
-        return ResponseEntity.ok("Пользователь успешно зарегистрирован!");
-    }
 
+        if (login == null || login.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Логин не может быть пустым"));
+        }
+        if (password == null || password.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Пароль не может быть пустым"));
+        }
+
+        if (login.length() < 3 || login.length() > 20) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Логин должен быть от 3 до 20 символов"));
+        }
+
+        if (password.length() < 8 || password.length() > 30) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Пароль должен быть от 8 до 30 символов"));
+        }
+
+        if (!login.matches("^[a-zA-Z0-9_@.]+$")) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Логин может содержать только буквы, цифры и символы _ @ ."));
+        }
+
+        if (!password.matches("^[a-zA-Z0-9!@#$%^&*()_+]+$")) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Пароль может содержать только буквы, цифры и символы !@#$%^&*()_+"));
+        }
+
+        if (userService.findByLogin(login).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "Пользователь с таким логином уже существует"));
+        }
+
+        userService.register(login, password);
+        return ResponseEntity.ok(Map.of("message", "Пользователь успешно зарегистрирован!"));
+    }
 
     @GetMapping("/users")
     public ResponseEntity<List<String>> getAllUsers() {
