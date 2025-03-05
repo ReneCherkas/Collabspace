@@ -105,7 +105,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", "Пользователь с таким логином уже существует"));
         }
 
-        userService.register(login, password);
+        userService.register(login, password, "Пользователь");
         return ResponseEntity.ok(Map.of("message", "Пользователь успешно зарегистрирован!"));
     }
 

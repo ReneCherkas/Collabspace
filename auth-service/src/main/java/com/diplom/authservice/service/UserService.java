@@ -39,13 +39,14 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
-    public User register(String login, String password) {
+    public User register(String login, String password, String role) {
         if (userRepository.findByLogin(login).isPresent()) {
             throw new RuntimeException("Пользователь с таким логином уже существует!");
         }
         User user = new User();
         user.setLogin(login);
         user.setPassword(passwordEncoder.encode(password));
+        user.setRole(role);
         return userRepository.save(user);
     }
 
