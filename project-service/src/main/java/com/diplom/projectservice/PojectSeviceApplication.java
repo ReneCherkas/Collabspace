@@ -1,4 +1,4 @@
-package com.diplom.pojectsevice;
+package com.diplom.projectservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
