@@ -1,13 +1,13 @@
-package com.diplom.deskservice;
+package com.diplom.challengeservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DeskServiceApplication {
+public class ChallengeServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(DeskServiceApplication.class, args);
+        SpringApplication.run(ChallengeServiceApplication.class, args);
     }
 
 }
