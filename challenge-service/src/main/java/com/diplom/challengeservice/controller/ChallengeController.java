@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/challenges")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "https://collabspacefrontend.onrender.com")
 public class ChallengeController {
 
     private final ChallengeRepository challengeRepository;
