@@ -14,10 +14,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false, length = 50)
     private String name;
 
-    @Column
+    @Column(nullable = false)
     private String nickname;
 
     @Column(unique = true, nullable = false)
@@ -28,13 +28,6 @@ public class User {
 
     @Column
     private String role;
-
-    @Column
-    private String city;
-
-    @Temporal(TemporalType.DATE)
-    @Column(name = "birthdate")
-    private java.util.Date birthdate;
 
     @Column(name = "photo_path")
     private String photoPath;

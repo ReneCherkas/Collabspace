@@ -1,6 +1,5 @@
 package com.diplom.authservice.model;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -11,7 +10,5 @@ public class UserProfileDTO {
     private String role;
     private String name;
     private String nickname;
-    private String birthdate;
-    private String city;
     private String photo;
 }

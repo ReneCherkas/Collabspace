@@ -29,6 +29,21 @@ public class UserService implements UserDetailsService {
                 .collect(Collectors.toList());
     }
 
+    public void register(String login, String password, String role, String nickname, String name) {
+        User user = new User();
+        user.setLogin(login);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setRole(role);
+        user.setNickname(nickname);
+        user.setName(name);
+
+        userRepository.save(user);
+    }
+
+    public Optional<User> findByNickname(String nickname) {  // Новый метод
+        return userRepository.findByNickname(nickname);
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByLogin(username)
@@ -54,23 +69,34 @@ public class UserService implements UserDetailsService {
         return userRepository.findByLogin(login);
     }
 
+
     public void updateUser(User updatedUser) {
-        User user = userRepository.findByLogin(updatedUser.getLogin())
+        User existingUser = userRepository.findByLogin(updatedUser.getLogin())
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
-        if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
-        }
-        if (updatedUser.getRole() != null && !updatedUser.getRole().isEmpty()) {
-            user.setRole(updatedUser.getRole());
-        }
-        if (updatedUser.getCity() != null) {
-            user.setCity(updatedUser.getCity());
-        }
-        if (updatedUser.getPhotoPath() != null) {
-            user.setPhotoPath(updatedUser.getPhotoPath());
+        if (updatedUser.getName() != null && !updatedUser.getName().isEmpty()) {
+            existingUser.setName(updatedUser.getName());
         }
 
-        userRepository.save(user);
+        if (updatedUser.getNickname() != null && !updatedUser.getNickname().isEmpty()) {
+            existingUser.setNickname(updatedUser.getNickname());
+        }
+
+        if (updatedUser.getPassword() != null &&
+                !updatedUser.getPassword().isEmpty() &&
+                !updatedUser.getPassword().equals(existingUser.getPassword())) {
+            existingUser.setPassword(updatedUser.getPassword());
+        }
+
+        if (updatedUser.getPhotoPath() != null) {
+            existingUser.setPhotoPath(updatedUser.getPhotoPath());
+        }
+
+        userRepository.save(existingUser);
     }
+
+    public Optional<User> findById(Long userId) {
+        return userRepository.findById(userId);
+    }
+
 }
